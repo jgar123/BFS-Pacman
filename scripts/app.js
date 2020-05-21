@@ -1,16 +1,8 @@
 function main() {
 
-  const testGrid = []
-  for (let y = 0; y < 20; y++) {
-    const temp = []
-    for (let x = 0; x < 20; x++) {
-      temp.push(new Vector(y, x))
-    }
-    testGrid.push(temp)
-  }
+  const grid = document.querySelector('#grid')
+  const cells = []
 
-
-  console.log(BFS(testGrid, testGrid[18][0], testGrid[18][17]))
 
 }
 
@@ -28,7 +20,7 @@ class Vector {
   }
 }
 
-// Finds neighbouring cells (will ony ever be 1 square away), then removes all of the coordinates from the result array containing -1 or a value higher than the width or height of the grid minus 1
+// Finds neighbouring cells (will ony ever be 1 square away), then removes all of the coordinates from the result array containing -1 or a value higher than the width or height of the grid minus 1. Will eventually add checks for borders so that it only returns result with valid coords.
 function neighbourCells(grid, position) {
   const result = []
   if (position.x + 1) {
