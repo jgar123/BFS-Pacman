@@ -18,6 +18,8 @@ function main() {
     testGrid.push(temp)
   }
 
+
+  // Finds neighbouring cells (will ony ever be 1 square away), then removes all of the coordinates from the result array containing -1 or a value higher than the width or height of the grid minus 1
   function neighbourCells(grid, position) {
     const result = []
     if (position.x + 1) {
@@ -36,6 +38,7 @@ function main() {
     return result.filter(coord => (coord.x  >= 0 && coord.x < grid.length) && (coord.y >= 0 && coord.y < grid.length))
   }
 
+  // Created from pseudocode provided on wikipedia. Cycles through vectors until the current vectors x and y coordinates are the same as the goal coords. Once they are, the routeMap function is called which generates the array of objects containing x and y coordinates for the ghost to follow. Currently, the idea is for the ghosts to follow the route until they reach an intersection and then re-evaluate their route in relation to pacman
   function BFS(grid, start, goal) {
 
     const q = []
@@ -62,17 +65,6 @@ function main() {
 
   }
 
-  // let path = BFS(testGrid, testGrid[0][0], testGrid[18][17])
-  // const route = []
-  
-
-  // while (path.parent !== null) {
-  //   route.unshift({ y: path.y, x: path.x })
-  //   path = path.parent
-  // }
-
-  // console.log(route)
-
   function routeMap(vector) {
     let path = vector
     const route = []
@@ -85,8 +77,7 @@ function main() {
     return route
   }
 
-
-  console.log(BFS(testGrid, testGrid[0][0], testGrid[18][17]))
+  console.log(BFS(testGrid, testGrid[18][0], testGrid[18][17]))
 
 
 }
