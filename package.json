@@ -1,0 +1,14 @@
+{
+  "name": "BFS-Pacman",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/jgar123/BFS-Pacman.git",
+  "author": "Jonny Garius <gariusjonathan@hotmail.co.uk>",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "jest": "^26.0.1"
+  }
+}
