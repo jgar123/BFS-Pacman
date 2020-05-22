@@ -2,8 +2,8 @@ function main() {
 
   const grid = document.querySelector('#grid')
   const gridSize = 8
-  let ghost = 1
-  let pacman = 62
+  let ghost = 4
+  let pacman = 37
   const cells = []
 
   for (let i = 0; i < gridSize ** 2; i++) {
@@ -16,7 +16,7 @@ function main() {
     if (i === pacman) {
       cell.classList.add('pacman')
     }
-    cell.innerHTML = i
+    // cell.innerHTML = i
     cells.push(cell)
     grid.append(cell)
 
@@ -58,19 +58,22 @@ function main() {
   }
 
   const test = cellsToVectors(cells)
-  console.log(test)
+
+  const route = BFS(test, gridSize)
+
+  console.log(route)
   
-  // let i = 0
-  // const interval1 = setInterval(() => {
-  //   if (ghost === pacman) {
-  //     clearInterval(interval1)
-  //   } else {
-  //     cells[ghost].classList.remove('ghost')
-  //     ghost += route[i]
-  //     i++
-  //     cells[ghost].classList.add('ghost')
-  //   }
-  // }, 100)
+  let i = 0
+  const interval1 = setInterval(() => {
+    if (ghost === pacman) {
+      clearInterval(interval1)
+    } else {
+      cells[ghost].classList.remove('ghost')
+      ghost += route[i]
+      i++
+      cells[ghost].classList.add('ghost')
+    }
+  }, 100)
 
 }
 
@@ -92,20 +95,15 @@ class Vector {
 // Finds neighbouring cells (will ony ever be 1 square away), then removes all of the coordinates from the result array containing -1 or a value higher than the width or height of the grid minus 1. Will eventually add checks for borders so that it only returns result with valid coords.
 function neighbourCells(grid, position) {
   const result = []
-  if (position.x + 1) {
-    result.push({ y: position.y, x: position.x + 1 })
-  }
-  if (position.x - 1) {
-    result.push({ y: position.y, x: position.x - 1 })
-  }
-  if (position.y - 1) {
-    result.push({ y: position.y - 1, x: position.x })
-  }
-  if (position.y + 1) {
-    result.push({ y: position.y + 1, x: position.x })
-  }
+  result.push(
+    { y: position.y, x: position.x + 1 }, 
+    { y: position.y, x: position.x - 1 }, 
+    { y: position.y - 1, x: position.x }, 
+    { y: position.y + 1, x: position.x }
+  )
 
   return result.filter(coord => (coord.x  >= 0 && coord.x < grid.length) && (coord.y >= 0 && coord.y < grid.length))
+
 }
 
 // Created from pseudocode provided on wikipedia. Cycles through vectors until the current vectors x and y coordinates are the same as the goal coords. Once they are, the routeMap function is called which generates the array of objects containing x and y coordinates for the ghost to follow. Currently, the idea is for the ghosts to follow the route until they reach an intersection and then re-evaluate their route in relation to pacman
@@ -125,6 +123,7 @@ function BFS(gridStartGoalObject, gridSize) {
     if (v.x === goal.x && v.y === goal.y) {
       return routeMap(v, gridSize)
     }
+
     const adjacentCells = neighbourCells(grid, v)
 
     adjacentCells.forEach(coord => {
@@ -151,16 +150,16 @@ function routeMap(vector, gridSize) {
   const startV = path
   const route = []
 
+  route.push(coordsConverter(
+    startV.x, 
+    startV.y, 
+    coords[0].x, 
+    coords[0].y,
+    gridSize
+  ))
+
   for (let i = 0; i < coords.length; i++) {
-    if (i === 0) {
-      route.push(coordsConverter(
-        startV.x, 
-        startV.y, 
-        coords[0].x, 
-        coords[0].y,
-        gridSize
-      ))
-    } else if (i === coords.length - 1) {
+    if (i === coords.length - 1) {
       return route
     } else {
       route.push(
