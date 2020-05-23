@@ -9,19 +9,23 @@ body {
   display: flex;
   flex-wrap: wrap;
   width: 50vw;
-  height: 50vh;
+  height: 70vh;
 }
 
 #grid div {
-  height: 6.3%;
-  width: 6.3%;
+  height: 5.2%;
+  width: 5.2%;
   border: 1px solid white;
   background-color: rgba(200, 200, 200, 0.5);
   border-radius: 0.4rem;
 }
 
-#grid .ghost {
+#grid .blinky {
   background-color: red;
+}
+
+#grid .pinky {
+  background-color: pink;
 }
 
 #grid .pacman {
