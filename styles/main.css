@@ -13,8 +13,8 @@ body {
 }
 
 #grid div {
-  height: 12%;
-  width: 12%;
+  height: 6.3%;
+  width: 6.3%;
   border: 1px solid white;
   background-color: rgba(200, 200, 200, 0.5);
   border-radius: 0.4rem;
@@ -30,4 +30,8 @@ body {
 
 #grid .route {
   background-color: yellowgreen;
+}
+
+#grid .wall {
+  background-color: darkgray;
 }

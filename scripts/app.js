@@ -1,9 +1,10 @@
 function main() {
 
   const grid = document.querySelector('#grid')
-  const gridSize = 8
-  let ghost = 4
-  let pacman = 37
+  const gridSize = 15
+  let ghost = 16
+  let pacman = 192
+  const wall = [22,37,52,67,202,187,172,157]
   const cells = []
 
   for (let i = 0; i < gridSize ** 2; i++) {
@@ -16,64 +17,71 @@ function main() {
     if (i === pacman) {
       cell.classList.add('pacman')
     }
-    // cell.innerHTML = i
+    if (wall.includes(i)) {
+      cell.classList.add('wall')
+    }
+    if (i <= 14 || i % gridSize === 0 || i %  gridSize - gridSize + 1 === 0 || i >= 210) {
+      cell.classList.add('wall')
+    }
+    if (i === 105 || i === 119) {
+      cell.classList.remove('wall')
+    }
+    cell.innerHTML = i
     cells.push(cell)
     grid.append(cell)
 
   }
 
-
-  function cellsToVectors(gameGridState) {
-
-    // split gameState into array or array (cells)
-    const updatedState = []
-    for (let i = 0; i < gameGridState.length; i += gridSize) {
-      updatedState.push(gameGridState.slice(i, i + gridSize))
-    }    
-
-    const grid = []
-    let ghost
-    let pacman
-    for (let y = 0; y < gridSize; y++) {
-      const temp = []
-      for (let x = 0; x < gridSize; x++) {
-        const v = new Vector(y, x, updatedState[y][x].className)
-        if (v.value === 'ghost') {
-          ghost = v
-        } else if (v.value === 'pacman') {
-          pacman = v
-        }
-        temp.push(v)      
-      }
-      grid.push(temp)
-    }
-    
-    // object to hold the updated vector graph, ghost and pacman
-    return {
-      grid: grid,
-      ghost: ghost,
-      pacman: pacman
-    }
-
-  }
-
-  const test = cellsToVectors(cells)
+  const test = cellsToVectors(cells, gridSize)
 
   const route = BFS(test, gridSize)
 
-  console.log(route)
+  const interval2 = setInterval(() => {
+    if (ghost === pacman) {
+      clearInterval(interval2)
+      console.log('woo')
+    } else {
+      const test2 = cellsToVectors(cells, gridSize)
+      console.log(test2)
+      console.log(BFS(test2, gridSize))
+    }
+  }, 3000)
   
   let i = 0
+
   const interval1 = setInterval(() => {
     if (ghost === pacman) {
       clearInterval(interval1)
+      cells[pacman].classList.remove('pacman')
+      cells[ghost].classList.add('ghost')
     } else {
       cells[ghost].classList.remove('ghost')
       ghost += route[i]
       i++
       cells[ghost].classList.add('ghost')
     }
-  }, 100)
+  }, 1000)
+
+  window.addEventListener('keydown', (e) => {
+    if (e.keyCode === 37) {
+      cells[pacman].classList.remove('pacman')
+      pacman--
+      cells[pacman].classList.add('pacman')
+    } else if (e.keyCode === 38) {
+      cells[pacman].classList.remove('pacman')
+      pacman -= gridSize
+      cells[pacman].classList.add('pacman')
+    } else if (e.keyCode === 39) {
+      cells[pacman].classList.remove('pacman')
+      pacman++
+      cells[pacman].classList.add('pacman')
+    } else if (e.keyCode === 40) {
+      cells[pacman].classList.remove('pacman')
+      pacman += gridSize
+      cells[pacman].classList.add('pacman')
+    }
+
+  })
 
 }
 
@@ -92,17 +100,57 @@ class Vector {
   }
 }
 
+// Converts current game state (stored in cells) from an array into an array of arrays. Once split, it then recreates the board with vectors 
+// putting the new vector grid, ghost and pacman into an object which is fed into BFS.
+function cellsToVectors(gameGridState, gridSize) {
+
+  // split gameState into array or array (cells)
+  const updatedState = []
+  for (let i = 0; i < gameGridState.length; i += gridSize) {
+    updatedState.push(gameGridState.slice(i, i + gridSize))
+  }    
+
+  const grid = []
+  let ghost
+  let pacman
+  for (let y = 0; y < gridSize; y++) {
+    const temp = []
+    for (let x = 0; x < gridSize; x++) {
+      const v = new Vector(y, x, updatedState[y][x].className)
+      if (v.value === 'ghost') {
+        ghost = v
+      } else if (v.value === 'pacman') {
+        pacman = v
+      }
+      temp.push(v)      
+    }
+    grid.push(temp)
+  }
+  
+  // object to hold the updated vector graph, ghost and pacman
+  return {
+    grid: grid,
+    ghost: ghost,
+    pacman: pacman
+  }
+
+}
+
 // Finds neighbouring cells (will ony ever be 1 square away), then removes all of the coordinates from the result array containing -1 or a value higher than the width or height of the grid minus 1. Will eventually add checks for borders so that it only returns result with valid coords.
 function neighbourCells(grid, position) {
   const result = []
   result.push(
-    { y: position.y, x: position.x + 1 }, 
-    { y: position.y, x: position.x - 1 }, 
-    { y: position.y - 1, x: position.x }, 
-    { y: position.y + 1, x: position.x }
+    { y: position.y, x: position.x + 1, value: position.value }, 
+    { y: position.y, x: position.x - 1 , value: position.value }, 
+    { y: position.y - 1, x: position.x, value: position.value }, 
+    { y: position.y + 1, x: position.x, value: position.value }
   )
 
-  return result.filter(coord => (coord.x  >= 0 && coord.x < grid.length) && (coord.y >= 0 && coord.y < grid.length))
+  return result.filter(coord => {
+    return (coord.x  >= 0 && coord.x < grid.length) && 
+      (coord.y >= 0 && coord.y < grid.length) && 
+      coord.value !== 'wall'
+  })
 
 }
 
