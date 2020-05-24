@@ -1,3 +1,3 @@
-**BFS-Pacman**
+# BFS-Pacman
 
 A Breadth-First-Search approach to Pacman
