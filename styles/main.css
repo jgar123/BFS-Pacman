@@ -28,6 +28,14 @@ body {
   background-color: pink;
 }
 
+#grid .inky {
+  background-color: turquoise;
+}
+
+#grid .clyde {
+  background-color: orange;
+}
+
 #grid .pacman {
   background-color: yellow;
 }
