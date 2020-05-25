@@ -10,14 +10,14 @@ body {
   flex-wrap: wrap;
   width: 50vw;
   height: 70vh;
+  max-width: 580px;
 }
 
 #grid div {
-  height: 5.2%;
-  width: 5.2%;
-  border: 1px solid white;
-  background-color: rgba(200, 200, 200, 0.5);
-  border-radius: 0.4rem;
+  height: 5.6%;
+  width: 5.3%;
+  background-color: white;
+  border-radius: 50%;
 }
 
 #grid .blinky {
@@ -28,7 +28,7 @@ body {
   background-color: pink;
 }
 
-#grid .inky {
+#grid .wrinkly {
   background-color: turquoise;
 }
 
@@ -45,5 +45,26 @@ body {
 }
 
 #grid .wall {
-  background-color: darkgray;
+  background-color: dodgerblue;
+  border-radius: 0;
+}
+
+#grid .flee {
+  background-color: darkblue;
+}
+
+#grid .biscuit {
+  background-color: grey;
+  border-radius: 50%;
+  animation: blinker 1s linear infinite;
+}
+
+#grid .seed {
+  background: radial-gradient(lime 0%, transparent 20%, transparent 40%);
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
 }

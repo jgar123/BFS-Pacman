@@ -14,7 +14,7 @@ class Vector {
 }
 
 // Converts current game state (stored in cells) from an array into an array of arrays. Once split, it then recreates the board with vectors putting the new vector grid, ghost and pacman into an object which is fed into BFS algorithm
-function cellsToVectors(gameGridState, gridSize, ghostAsString) {
+function cellsToVectors(gameGridState, gridSize, ghostAsString, flee) {
 
   // split gameState into array or array (cells)
   const updatedState = []
@@ -22,6 +22,7 @@ function cellsToVectors(gameGridState, gridSize, ghostAsString) {
     updatedState.push(gameGridState.slice(i, i + gridSize))
   }    
 
+  // not sure why I set v.value to ghostString, scared to get rid of
   const grid = []
   let ghost
   let pacman
@@ -29,24 +30,40 @@ function cellsToVectors(gameGridState, gridSize, ghostAsString) {
     const temp = []
     for (let x = 0; x < gridSize; x++) {
       const v = new Vector(y, x, updatedState[y][x].className)
-      if (v.value.includes(ghostAsString)) {
-        v.value = ghostAsString
-        ghost = v
-      } else if (v.value.includes('pacman')) {
-        v.value = 'pacman'
-        pacman = v
+      if (!flee) {
+        if (v.value.includes(ghostAsString)) {
+          v.value = ghostAsString
+          ghost = v
+        } 
+        if (ghostAsString === 'blinky' && y === 1 && x === gridSize - 3) {
+          pacman = v
+        } else if (ghostAsString === 'pinky' && y === 1 && x === 2) {
+          pacman = v
+        } else if (ghostAsString === 'wrinkly' && y === gridSize - 2 && x === gridSize - 3) {
+          pacman = v
+        } else if (ghostAsString === 'clyde' && y === gridSize - 2 && x === 2) {
+          pacman = v
+        }
+      } else {
+        if (v.value.includes(ghostAsString)) {
+          v.value = ghostAsString
+          ghost = v
+        } else if (v.value.includes('pacman')) {
+          v.value = 'pacman'
+          pacman = v
+        }
       }
       temp.push(v)      
     }
     grid.push(temp)
 
   }
-  
+
   // object to hold the updated vector graph, ghost and pacman
   return {
     grid: grid,
-    ghost: ghost,
-    pacman: pacman
+    start: ghost,
+    goal: pacman
   }
 
 }
@@ -73,8 +90,12 @@ function neighbourCells(grid, position) {
 function BFS(gridStartGoalObject, gridSize) {
 
   const grid = gridStartGoalObject.grid
-  const start = gridStartGoalObject.ghost
-  const goal = gridStartGoalObject.pacman
+  const start = gridStartGoalObject.start
+  const goal = gridStartGoalObject.goal
+
+  if (start.x === goal.x && start.y === goal.y) {
+    return [0]
+  }
 
   const q = []
   start.discovered = true

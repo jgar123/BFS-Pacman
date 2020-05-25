@@ -1,184 +1,232 @@
+/* global cellsToVectors, BFS, cells, gridSize, pacman, blinky, pinky, inky, clyde, biscuits, wall */
+/* eslint-disable no-unused-vars */
+
 function main() {
 
   const grid = document.querySelector('#grid')
-  const cells = []
-  const gridSize = 18
-  let pacmanInterval
-  let blinkyInterval
-  let pinkyInterval
-  let clydeInterval
-  const blinky = 115
-  const pinky = 169
-  const clyde = 172
-  let pacman = 296
-  const wall = [
-    26, 27, 38, 39, 40, 41, 42, 44, 45, 47, 48, 49, 50, 51, 56, 57, 58, 59, 60, 62, 63, 65, 66, 67, 68, 69, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 114, 119, 127, 128, 129, 130, 132, 134, 135, 137, 139, 140, 141, 142, 152, 153, 163, 164, 165, 166, 168, 173, 175, 176, 177, 178, 181, 182, 183, 184, 186, 187, 188, 189, 190, 191, 193, 194, 195, 196, 206, 207, 218, 219, 220, 222, 224, 225, 227, 229, 230, 231, 236, 237, 238, 240, 245, 247, 248, 249, 258, 259, 260, 261, 262, 263, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285
-  ]
+  let pacmanInterval, blinkyInterval, pinkyInterval, inkyInterval, clydeInterval
 
+  createBoard(18, wall)
+  pacmanMovement()
+  blinkyMovement()
+  pinkyMovement()
+  inkyMovement()
+  clydeMovement()
+
+  // ! INTERVALS //
+
+  // Checks for collision between ghost and pacman
+  const checkGameInterval = setInterval(() => {
+
+    if ([blinky.position, pinky.position, clyde.position, inky.position].includes(pacman.position) && pacman.flee) {
+      clearInterval(blinkyInterval)
+      clearInterval(pinkyInterval)
+      clearInterval(inkyInterval)
+      clearInterval(clydeInterval)
+      clearInterval(checkGameInterval)
+      clearInterval(pacmanInterval)
+    } else if ([blinky.position, pinky.position, clyde.position, inky.position].includes(pacman.position) && !pacman.flee) {
+      pacman.score += 10
+      blinky.position === pacman.position ? resetGhost(blinky, 115, 'blinky', blinkyInterval) :
+        pinky.position === pacman.position ? resetGhost(pinky, 169, 'pinky', pinkyInterval) :
+          inky.position === pacman.position ? resetGhost(inky, 118, 'wrinkly', inkyInterval) :
+            clyde.position === pacman.position ? resetGhost(clyde, 172, 'clyde', clydeInterval) : null
+    }
+
+  }, 100)
+
+  // ! FUNCTIONS //
+
+  // Creates game board
   function createBoard(gridSize, wall) {
     for (let i = 0; i < gridSize ** 2; i++) {
 
       const cell = document.createElement('div')
-  
-      if (i === blinky) {
+
+      if (i === blinky.position) {
         cell.classList.add('blinky')
-      }
-      if (i === pinky) {
+      } else if (i === pinky.position) {
         cell.classList.add('pinky')
-      }
-      if (i === clyde) {
+      } else if (i === clyde.position) {
         cell.classList.add('clyde')
-      }
-      if (i === pacman) {
+      } else if (i === inky.position) {
+        cell.classList.add('wrinkly')
+      } else if (i === pacman.position) {
         cell.classList.add('pacman')
-      }
-      if (wall.includes(i)) {
+      } else if (wall.includes(i)) {
         cell.classList.add('wall')
-      }
-      if (i <= gridSize - 1 || i % gridSize === 0 || i %  gridSize - gridSize + 1 === 0 || i >= gridSize ** 2 - gridSize) {
+      } else if (i <= gridSize - 1 || i % gridSize === 0 || i % gridSize - gridSize + 1 === 0 || i >= gridSize ** 2 - gridSize) {
         cell.classList.add('wall')
+      } else if (biscuits.includes(i)) {
+        cell.classList.add('biscuit')
+      } else {
+        cell.classList.add('seed')
       }
+      // cell.innerHTML = i
       cells.push(cell)
       grid.append(cell)
-  
     }
 
   }
 
-  function ghostMovement(ghost, ghostAsString, speed) {
-    if (ghostAsString === 'blinky') {
-      blinkyInterval = setInterval(() => {
-        if (ghost === pacman) {
-          clearInterval(blinkyInterval)
-          clearInterval(pinkyInterval)
-          clearInterval(clydeInterval)
-          cells[pacman].classList.remove('pacman')
-          cells[ghost].classList.add(ghostAsString)
-        } else {
-          const ghostMap = cellsToVectors(cells, gridSize, ghostAsString)
-          const ghostRoute = BFS(ghostMap, gridSize)
-          cells[ghost].classList.remove(ghostAsString)
-          ghost += ghostRoute[0]
-          cells[ghost].classList.add(ghostAsString)
-        }
-      }, speed)
-    } else if (ghostAsString === 'pinky') {
-      pinkyInterval = setInterval(() => {
-        if (ghost === pacman) {
-          clearInterval(blinkyInterval)
-          clearInterval(pinkyInterval)
-          clearInterval(clydeInterval)
-          cells[pacman].classList.remove('pacman')
-          cells[ghost].classList.add(ghostAsString)
-        } else {
-          const ghostMap = cellsToVectors(cells, gridSize, ghostAsString)
-          const ghostRoute = BFS(ghostMap, gridSize)
-          cells[ghost].classList.remove(ghostAsString)
-          ghost += ghostRoute[0]
-          cells[ghost].classList.add(ghostAsString)
-        }
-      }, speed)
-    } else if (ghostAsString === 'clyde') {
-      clydeInterval = setInterval(() => {
-        if (ghost === pacman) {
-          clearInterval(blinkyInterval)
-          clearInterval(pinkyInterval)
-          clearInterval(clydeInterval)
-          cells[pacman].classList.remove('pacman')
-          cells[ghost].classList.add(ghostAsString)
-        } else {
-          const ghostMap = cellsToVectors(cells, gridSize, ghostAsString)
-          const ghostRoute = BFS(ghostMap, gridSize)
-          cells[ghost].classList.remove(ghostAsString)
-          ghost += ghostRoute[0]
-          cells[ghost].classList.add(ghostAsString)
-        }
-      }, speed)
-    }
+  // Sets pacman flee variable to false for 5 seconds
+  function pacmanChasing() {
+    cells[pacman.position].classList.remove('biscuit')
+    cells[blinky.position].classList.add('flee')
+    cells[pinky.position].classList.add('flee')
+    cells[inky.position].classList.add('flee')
+    cells[clyde.position].classList.add('flee')
+    pacman.flee = false
+    setTimeout(() => {
+      pacman.flee = true
+      cells[blinky.position].classList.remove('flee')
+      cells[pinky.position].classList.remove('flee')
+      cells[inky.position].classList.remove('flee')
+      cells[clyde.position].classList.remove('flee')
+    }, 7000)
   }
 
-  function pacmanMovement(speed) {
+  // Checks pacman classes nearby based on direction
+  function pacmanClassLogic(direction) {
+    let move
+    direction === 'left' ? move = -1 :
+      direction === 'up' ? move = -gridSize :
+        direction === 'right' ? move = 1 :
+          direction === 'down' ? move = gridSize : null
+
+    if (cells[pacman.position + move].classList.contains('wall')) {
+      return
+    } else {
+      if (cells[pacman.position + move].classList.contains('seed')) {
+        cells[pacman.position + move].classList.remove('seed')
+        pacman.score++
+      }
+      cells[pacman.position].classList.remove('pacman')
+      pacman.position += move
+      cells[pacman.position].classList.add('pacman')
+      if (cells[pacman.position].classList.contains('biscuit')) {
+        pacmanChasing()
+      }
+    }
+
+  }
+
+  // Pacman setIntervals
+  function pacmanMovement() {
     window.addEventListener('keydown', (e) => {
       if (e.keyCode === 65) {
-        if ([blinky, pinky, clyde].includes(pacman)) {
-          clearInterval(blinkyInterval)
-          clearInterval(pinkyInterval)
-          clearInterval(clydeInterval)
-        } else {
-          clearInterval(pacmanInterval)
-          pacmanInterval = setInterval(() => {
-            if (cells[pacman - 1].classList.contains('wall')) {
-              return
-            } else {
-              cells[pacman].classList.remove('pacman')
-              pacman--
-              cells[pacman].classList.add('pacman')
-            }
-          }, speed)
-        }
-      } 
+        clearInterval(pacmanInterval)
+        pacmanInterval = setInterval(() => {
+          pacmanClassLogic('left')
+        }, pacman.speed)
+      }
       if (e.keyCode === 87) {
-        if ([blinky, pinky, clyde].includes(pacman)) {
-          clearInterval(blinkyInterval)
-          clearInterval(pinkyInterval)
-          clearInterval(clydeInterval)
-        } else {
-          clearInterval(pacmanInterval)
-          pacmanInterval = setInterval(() => {
-            if (cells[pacman - gridSize].classList.contains('wall')) {
-              return
-            } else {
-              cells[pacman].classList.remove('pacman')
-              pacman -= gridSize
-              cells[pacman].classList.add('pacman')
-            }
-          }, speed)
-        }
-      } 
+        clearInterval(pacmanInterval)
+        pacmanInterval = setInterval(() => {
+          pacmanClassLogic('up')
+        }, pacman.speed)
+      }
       if (e.keyCode === 68) {
-        if ([blinky, pinky, clyde].includes(pacman)) {
-          clearInterval(blinkyInterval)
-          clearInterval(pinkyInterval)
-          clearInterval(clydeInterval)
-        } else {
-          clearInterval(pacmanInterval)
-          pacmanInterval = setInterval(() => {
-            if (cells[pacman + 1].classList.contains('wall')) {
-              return
-            } else {
-              cells[pacman].classList.remove('pacman')
-              pacman++
-              cells[pacman].classList.add('pacman')
-            }
-          }, speed)
-        }
-      } 
+        clearInterval(pacmanInterval)
+        pacmanInterval = setInterval(() => {
+          pacmanClassLogic('right')
+        }, pacman.speed)
+      }
       if (e.keyCode === 83) {
-        if ([blinky, pinky, clyde].includes(pacman)) {
-          clearInterval(blinkyInterval)
-          clearInterval(pinkyInterval)
-          clearInterval(clydeInterval)
-        } else {
-          clearInterval(pacmanInterval)
-          pacmanInterval = setInterval(() => {
-            if (cells[pacman + gridSize].classList.contains('wall')) {
-              return
-            } else {
-              cells[pacman].classList.remove('pacman')
-              pacman += gridSize
-              cells[pacman].classList.add('pacman')
-            }
-          }, speed)
-        }
+        clearInterval(pacmanInterval)
+        pacmanInterval = setInterval(() => {
+          pacmanClassLogic('down')
+        }, pacman.speed)
       }
     })
   }
 
-  createBoard(18, wall)
-  ghostMovement(blinky, 'blinky', 400)
-  ghostMovement(pinky, 'pinky', 600)
-  ghostMovement(clyde, 'clyde', 800)
-  pacmanMovement(200)
+  function resetGhost(ghost, position, ghostAsString, ghostInterval) {
+
+    clearInterval(ghostInterval)
+    cells[ghost.position].classList.remove(ghostAsString)
+    cells[ghost.position].classList.remove('flee')
+    ghost.position = position
+    cells[ghost.position].classList.remove('seed')
+    cells[ghost.position].classList.add(ghostAsString)
+    setTimeout(() => {
+      ghostAsString === 'blinky' ? blinkyMovement() :
+        ghostAsString === 'pinky' ? pinkyMovement() :
+          ghostAsString === 'wrinkly' ? inkyMovement() :
+            ghostAsString === 'clyde' ? clydeMovement() :
+              null
+    }, 3000)
+
+  }
+
+  // Handles ghost class changes and movement over seeds
+  function ghostMovement(ghost, ghostAsString, route) {
+    if (!pacman.flee) {
+      cells[ghost.position].classList.remove(ghostAsString)
+      cells[ghost.position].classList.remove('flee')
+      cells[ghost.position].classList.add('seed')
+      ghost.position += route[0]
+      cells[ghost.position].classList.remove('seed')
+      cells[ghost.position].classList.add(ghostAsString)
+      cells[ghost.position].classList.add('flee')
+    } else {
+      if (cells[ghost.position].classList.contains('biscuit')) {
+        cells[ghost.position].classList.remove(ghostAsString)
+        cells[ghost.position].classList.remove('flee')
+        ghost.position += route[0]
+        cells[ghost.position].classList.add(ghostAsString)
+      } else {
+        cells[ghost.position].classList.remove(ghostAsString)
+        cells[ghost.position].classList.remove('flee')
+        cells[ghost.position].classList.add('seed')
+        ghost.position += route[0]
+        cells[ghost.position].classList.remove('seed')
+        cells[ghost.position].classList.add(ghostAsString)
+      }
+    }
+  }
+
+  // Individual function containing the setIntervals for each ghost. This was done so that movement could be reset
+  function blinkyMovement() {
+    blinkyInterval = setInterval(() => {
+
+      const ghostMap = cellsToVectors(cells, gridSize, 'blinky', pacman.flee)
+      const ghostRoute = BFS(ghostMap, gridSize)
+      ghostMovement(blinky, 'blinky', ghostRoute)
+
+    }, blinky.speed)
+  }
+
+  function pinkyMovement() {
+    pinkyInterval = setInterval(() => {
+
+      const ghostMap = cellsToVectors(cells, gridSize, 'pinky', pacman.flee)
+      const ghostRoute = BFS(ghostMap, gridSize)
+      ghostMovement(pinky, 'pinky', ghostRoute)
+
+    }, pinky.speed)
+  }
+
+  function inkyMovement() {
+    inkyInterval = setInterval(() => {
+
+      const ghostMap = cellsToVectors(cells, gridSize, 'wrinkly', pacman.flee)
+      const ghostRoute = BFS(ghostMap, gridSize)
+      ghostMovement(inky, 'wrinkly', ghostRoute)
+
+    }, inky.speed)
+  }
+
+  function clydeMovement() {
+    clydeInterval = setInterval(() => {
+
+      const ghostMap = cellsToVectors(cells, gridSize, 'clyde', pacman.flee)
+      const ghostRoute = BFS(ghostMap, gridSize)
+      ghostMovement(clyde, 'clyde', ghostRoute)
+
+    }, clyde.speed)
+  }
+
 }
 
 window.addEventListener('DOMContentLoaded', main)
