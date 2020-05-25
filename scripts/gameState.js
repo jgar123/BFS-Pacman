@@ -11,7 +11,8 @@ const pacman = {
   speed: 200,
   flee: true,
   lives: 3,
-  score: 0
+  score: 0,
+  ableToMove: true
 }
 
 const blinky = {

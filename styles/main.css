@@ -3,21 +3,62 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+#home-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  height: 70%;
+  max-width: 580px;
+  border: 5px solid limegreen;
+}
+
+#start-game {
+  background-color: limegreen;
+  color: white;
+  padding: 10px;
+  border: 2px solid white;
+  cursor: pointer;
+}
+
+#start-game:hover {
+  background-color: white;
+  color: limegreen;
+  border: 2px solid limegreen;
+}
+
+#score-container {
+  height: 70%;
+  width: 10%;
+  border: 2px solid yellow;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
 }
 
 #grid {
-  display: flex;
+  display: none;
+  justify-content: center;
   flex-wrap: wrap;
-  width: 50vw;
-  height: 70vh;
+  width: 50%;
+  height: 70%;
   max-width: 580px;
 }
 
 #grid div {
-  height: 5.6%;
+  height: 5.56%;
   width: 5.3%;
   background-color: white;
   border-radius: 50%;
+}
+
+#grid .seed {
+  background: radial-gradient(lime 0%, transparent 20%, transparent 40%);
 }
 
 #grid .blinky {
@@ -57,10 +98,6 @@ body {
   background-color: grey;
   border-radius: 50%;
   animation: blinker 1s linear infinite;
-}
-
-#grid .seed {
-  background: radial-gradient(lime 0%, transparent 20%, transparent 40%);
 }
 
 @keyframes blinker {

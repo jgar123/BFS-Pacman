@@ -4,36 +4,32 @@
 function main() {
 
   const grid = document.querySelector('#grid')
+  const scoreContainer = document.querySelector('#score-container')
+  const score = document.querySelector('#score')
+  const lives = document.querySelector('#lives')
+  const homeScreen = document.querySelector('#home-screen')
+  const startGame = document.querySelector('#start-game')
+  score.innerHTML = `Score: ${pacman.score}`
+  lives.innerHTML = `Lives: ${pacman.lives}`
   let pacmanInterval, blinkyInterval, pinkyInterval, inkyInterval, clydeInterval
 
-  createBoard(18, wall)
-  pacmanMovement()
-  blinkyMovement()
-  pinkyMovement()
-  inkyMovement()
-  clydeMovement()
+  startGame.addEventListener('click', () => {
 
-  // ! INTERVALS //
+    homeScreen.style.display = 'none'
+    grid.style.display = 'flex'
+    scoreContainer.style.display = 'flex'
+    createBoard(18, wall)
 
-  // Checks for collision between ghost and pacman
-  const checkGameInterval = setInterval(() => {
+    setTimeout(() => {
+      pacmanMovement()
+      gameConditions()
+      blinkyMovement()
+      pinkyMovement()
+      inkyMovement()
+      clydeMovement()
+    }, 3000)
 
-    if ([blinky.position, pinky.position, clyde.position, inky.position].includes(pacman.position) && pacman.flee) {
-      clearInterval(blinkyInterval)
-      clearInterval(pinkyInterval)
-      clearInterval(inkyInterval)
-      clearInterval(clydeInterval)
-      clearInterval(checkGameInterval)
-      clearInterval(pacmanInterval)
-    } else if ([blinky.position, pinky.position, clyde.position, inky.position].includes(pacman.position) && !pacman.flee) {
-      pacman.score += 10
-      blinky.position === pacman.position ? resetGhost(blinky, 115, 'blinky', blinkyInterval) :
-        pinky.position === pacman.position ? resetGhost(pinky, 169, 'pinky', pinkyInterval) :
-          inky.position === pacman.position ? resetGhost(inky, 118, 'wrinkly', inkyInterval) :
-            clyde.position === pacman.position ? resetGhost(clyde, 172, 'clyde', clydeInterval) : null
-    }
-
-  }, 100)
+  })
 
   // ! FUNCTIONS //
 
@@ -69,6 +65,28 @@ function main() {
 
   }
 
+  // Checks game conditions (collisions when pacman is fleeing and when ghosts are)
+  function gameConditions() {
+    const checkGameInterval = setInterval(() => {
+      if ([blinky.position, pinky.position, clyde.position, inky.position].includes(pacman.position) && pacman.flee) {
+        pacman.lives--
+        removeLife()
+        // clear all intervals 
+        clearInterval(pacmanInterval)
+        // reset ghost positions
+        resetGhost(pinky, 169, 'pinky', pinkyInterval), resetGhost(blinky, 115, 'blinky', blinkyInterval), resetGhost(inky, 118, 'wrinkly', inkyInterval), resetGhost(clyde, 172, 'clyde', clydeInterval)
+      } else if ([blinky.position, pinky.position, clyde.position, inky.position].includes(pacman.position) && !pacman.flee) {
+        pacman.score += 10
+        addScore()
+        blinky.position === pacman.position ? resetGhost(blinky, 115, 'blinky', blinkyInterval) :
+          pinky.position === pacman.position ? resetGhost(pinky, 169, 'pinky', pinkyInterval) :
+            inky.position === pacman.position ? resetGhost(inky, 118, 'wrinkly', inkyInterval) :
+              clyde.position === pacman.position ? resetGhost(clyde, 172, 'clyde', clydeInterval) : null
+      }
+
+    }, 10)
+  }
+
   // Sets pacman flee variable to false for 5 seconds
   function pacmanChasing() {
     cells[pacman.position].classList.remove('biscuit')
@@ -100,6 +118,7 @@ function main() {
       if (cells[pacman.position + move].classList.contains('seed')) {
         cells[pacman.position + move].classList.remove('seed')
         pacman.score++
+        addScore()
       }
       cells[pacman.position].classList.remove('pacman')
       pacman.position += move
@@ -114,25 +133,25 @@ function main() {
   // Pacman setIntervals
   function pacmanMovement() {
     window.addEventListener('keydown', (e) => {
-      if (e.keyCode === 65) {
+      if (e.keyCode === 65 && pacman.ableToMove) {
         clearInterval(pacmanInterval)
         pacmanInterval = setInterval(() => {
           pacmanClassLogic('left')
         }, pacman.speed)
       }
-      if (e.keyCode === 87) {
+      if (e.keyCode === 87 && pacman.ableToMove) {
         clearInterval(pacmanInterval)
         pacmanInterval = setInterval(() => {
           pacmanClassLogic('up')
         }, pacman.speed)
       }
-      if (e.keyCode === 68) {
+      if (e.keyCode === 68 && pacman.ableToMove) {
         clearInterval(pacmanInterval)
         pacmanInterval = setInterval(() => {
           pacmanClassLogic('right')
         }, pacman.speed)
       }
-      if (e.keyCode === 83) {
+      if (e.keyCode === 83 && pacman.ableToMove) {
         clearInterval(pacmanInterval)
         pacmanInterval = setInterval(() => {
           pacmanClassLogic('down')
@@ -164,25 +183,14 @@ function main() {
     if (!pacman.flee) {
       cells[ghost.position].classList.remove(ghostAsString)
       cells[ghost.position].classList.remove('flee')
-      cells[ghost.position].classList.add('seed')
       ghost.position += route[0]
-      cells[ghost.position].classList.remove('seed')
       cells[ghost.position].classList.add(ghostAsString)
       cells[ghost.position].classList.add('flee')
     } else {
-      if (cells[ghost.position].classList.contains('biscuit')) {
-        cells[ghost.position].classList.remove(ghostAsString)
-        cells[ghost.position].classList.remove('flee')
-        ghost.position += route[0]
-        cells[ghost.position].classList.add(ghostAsString)
-      } else {
-        cells[ghost.position].classList.remove(ghostAsString)
-        cells[ghost.position].classList.remove('flee')
-        cells[ghost.position].classList.add('seed')
-        ghost.position += route[0]
-        cells[ghost.position].classList.remove('seed')
-        cells[ghost.position].classList.add(ghostAsString)
-      }
+      cells[ghost.position].classList.remove(ghostAsString)
+      cells[ghost.position].classList.remove('flee')
+      ghost.position += route[0]
+      cells[ghost.position].classList.add(ghostAsString)
     }
   }
 
@@ -225,6 +233,14 @@ function main() {
       ghostMovement(clyde, 'clyde', ghostRoute)
 
     }, clyde.speed)
+  }
+
+  function addScore() {
+    score.innerHTML = `Score: ${pacman.score}`
+  }
+
+  function removeLife() {
+    lives.innerHTML = `Lives: ${pacman.lives}`
   }
 
 }
