@@ -22,7 +22,6 @@ function cellsToVectors(gameGridState, gridSize, ghostAsString, flee) {
     updatedState.push(gameGridState.slice(i, i + gridSize))
   }    
 
-  // not sure why I set v.value to ghostString, scared to get rid of
   const grid = []
   let ghost
   let pacman
