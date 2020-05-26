@@ -47,12 +47,12 @@ function main() {
             clearInterval(checkGameInterval), clearInterval(blinkyInterval), clearInterval(pinkyInterval), clearInterval(inkyInterval), clearInterval(clydeInterval)
             pacman.ableToMove = false
             endGame()
+            
           } else {
+
             pacman.lives--
             removeLife()
-            // clear all intervals 
             clearInterval(pacmanInterval)
-            // reset ghost positions
             resetGhost(pinky, 169, 'pinky', pinkyInterval), resetGhost(blinky, 115, 'blinky', blinkyInterval), resetGhost(inky, 118, 'wrinkly', inkyInterval), resetGhost(clyde, 172, 'clyde', clydeInterval)
             // reset pacman and prevent movement for same duration as the ghosts
             cells[pacman.position].classList.remove('pacman')
@@ -62,6 +62,7 @@ function main() {
             setTimeout(() => {
               pacman.ableToMove = true
             }, 3500)
+
           }
 
         } else if ([blinky.position, pinky.position, clyde.position, inky.position].includes(pacman.position) && !pacman.flee) {

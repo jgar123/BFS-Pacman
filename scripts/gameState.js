@@ -17,23 +17,29 @@ const pacman = {
 
 const blinky = {
   position: 115,
-  speed: 400,
+  speed: 40,
+  asString: 'blinky',
 }
 
 const pinky = {
   position: 169,
   speed: 600,
+  asString: 'pinky',
 }
 
 const inky = {
   position: 118,
   speed: 800,
+  asString: 'wrinkly'
 }
 
 const clyde = {
   position: 172,
   speed: 1000,
+  asString: 'clyde'
 }
+
+const ghosts = [blinky, pinky, inky, clyde]
 
 const biscuits = [19, 34, 289, 304, 145, 160]
 
