@@ -9,9 +9,12 @@ function main() {
   const lives = document.querySelector('#lives')
   const homeScreen = document.querySelector('#home-screen')
   const startGame = document.querySelector('#start-game')
+  const gameOver = document.querySelector('#game-over')
+  const finalScore = document.querySelector('#final-score')
   score.innerHTML = `Score: ${pacman.score}`
   lives.innerHTML = `Lives: ${pacman.lives}`
-  let pacmanInterval, blinkyInterval, pinkyInterval, inkyInterval, clydeInterval, checkGameInterval
+  gameOver
+  let pacmanInterval, blinkyInterval, pinkyInterval, inkyInterval, clydeInterval
 
   startGame.addEventListener('click', () => {
 
@@ -22,11 +25,59 @@ function main() {
 
     setTimeout(() => {
       pacmanMovement()
-      gameConditions()
       blinkyMovement()
       pinkyMovement()
       inkyMovement()
       clydeMovement()
+
+      // Checks game conditions 1.Eaten every biscuit and seed 2.All lives lost 3.Pacman eaten whilst ghost are chasing 4.Pacman eats ghost
+      const checkGameInterval = setInterval(() => {
+
+        if (cells.every(cell => !cell.classList.contains('seed') && !cell.classList.contains('biscuit'))) {
+    
+          clearInterval(checkGameInterval), clearInterval(blinkyInterval), clearInterval(pinkyInterval), clearInterval(inkyInterval), clearInterval(clydeInterval)
+          pacman.ableToMove = false
+          endGame()
+    
+        } else if ([blinky.position, pinky.position, clyde.position, inky.position].includes(pacman.position) && pacman.flee) {
+
+          if (pacman.lives <= 1) {
+            pacman.lives--
+            removeLife()
+            clearInterval(checkGameInterval), clearInterval(blinkyInterval), clearInterval(pinkyInterval), clearInterval(inkyInterval), clearInterval(clydeInterval)
+            pacman.ableToMove = false
+            endGame()
+          } else {
+            pacman.lives--
+            removeLife()
+            // clear all intervals 
+            clearInterval(pacmanInterval)
+            // reset ghost positions
+            resetGhost(pinky, 169, 'pinky', pinkyInterval), resetGhost(blinky, 115, 'blinky', blinkyInterval), resetGhost(inky, 118, 'wrinkly', inkyInterval), resetGhost(clyde, 172, 'clyde', clydeInterval)
+            // reset pacman and prevent movement for same duration as the ghosts
+            cells[pacman.position].classList.remove('pacman')
+            pacman.ableToMove = false
+            pacman.position = 296
+            cells[pacman.position].classList.add('pacman')
+            setTimeout(() => {
+              pacman.ableToMove = true
+            }, 3500)
+          }
+
+        } else if ([blinky.position, pinky.position, clyde.position, inky.position].includes(pacman.position) && !pacman.flee) {
+    
+          pacman.score += 10
+          addScore()
+          blinky.position === pacman.position ? resetGhost(blinky, 115, 'blinky', blinkyInterval) :
+            pinky.position === pacman.position ? resetGhost(pinky, 169, 'pinky', pinkyInterval) :
+              inky.position === pacman.position ? resetGhost(inky, 118, 'wrinkly', inkyInterval) :
+                clyde.position === pacman.position ? resetGhost(clyde, 172, 'clyde', clydeInterval) :
+                  null
+    
+        }
+    
+      }, 10)
+
     }, 3000)
 
   })
@@ -63,38 +114,6 @@ function main() {
       grid.append(cell)
     }
 
-  }
-
-  // Checks game conditions 1.Eaten every biscuit and seed 2.All lives lost 3.Pacman eaten whilst ghost are chasing 4.Pacman eats ghost
-  function gameConditions() {
-    checkGameInterval = setInterval(() => {
-      
-      if (cells.every(cell => !cell.classList.contains('seed') && !cell.classList.contains('biscuit'))) {
-
-        clearAllIntervals()
-
-      } else if ([blinky.position, pinky.position, clyde.position, inky.position].includes(pacman.position) && pacman.flee) {
-
-        pacman.lives--
-        removeLife()
-        // clear all intervals 
-        clearInterval(pacmanInterval)
-        // reset ghost positions
-        resetGhost(pinky, 169, 'pinky', pinkyInterval), resetGhost(blinky, 115, 'blinky', blinkyInterval), resetGhost(inky, 118, 'wrinkly', inkyInterval), resetGhost(clyde, 172, 'clyde', clydeInterval)
-        
-      } else if ([blinky.position, pinky.position, clyde.position, inky.position].includes(pacman.position) && !pacman.flee) {
-
-        pacman.score += 10
-        addScore()
-        blinky.position === pacman.position ? resetGhost(blinky, 115, 'blinky', blinkyInterval) :
-          pinky.position === pacman.position ? resetGhost(pinky, 169, 'pinky', pinkyInterval) :
-            inky.position === pacman.position ? resetGhost(inky, 118, 'wrinkly', inkyInterval) :
-              clyde.position === pacman.position ? resetGhost(clyde, 172, 'clyde', clydeInterval) : 
-                null
-
-      }
-
-    }, 10)
   }
 
   // Sets pacman flee variable to false for 5 seconds
@@ -184,11 +203,11 @@ function main() {
           ghostAsString === 'wrinkly' ? inkyMovement() :
             ghostAsString === 'clyde' ? clydeMovement() :
               null
-    }, 3000)
+    }, 3500)
 
   }
 
-  // Handles ghost class changes and movement over seeds
+  // Handles ghost class changes and movement
   function ghostMovement(ghost, ghostAsString, route) {
     if (!pacman.flee) {
       cells[ghost.position].classList.remove(ghostAsString)
@@ -253,13 +272,11 @@ function main() {
     lives.innerHTML = `Lives: ${pacman.lives}`
   }
 
-  function clearAllIntervals() {
-    clearInterval(pacmanInterval)
-    clearInterval(blinkyInterval)
-    clearInterval(pinkyInterval)
-    clearInterval(inkyInterval)
-    clearInterval(clydeInterval)
-    clearInterval(checkGameInterval)
+  function endGame() {
+    grid.style.display = 'none'
+    scoreContainer.style.display = 'none'
+    gameOver.style.display = 'flex'
+    finalScore.innerHTML = `FINAL SCORE: ${pacman.score}`
   }
 
 }
