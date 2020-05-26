@@ -11,7 +11,7 @@ function main() {
   const startGame = document.querySelector('#start-game')
   score.innerHTML = `Score: ${pacman.score}`
   lives.innerHTML = `Lives: ${pacman.lives}`
-  let pacmanInterval, blinkyInterval, pinkyInterval, inkyInterval, clydeInterval
+  let pacmanInterval, blinkyInterval, pinkyInterval, inkyInterval, clydeInterval, checkGameInterval
 
   startGame.addEventListener('click', () => {
 
@@ -65,23 +65,33 @@ function main() {
 
   }
 
-  // Checks game conditions (collisions when pacman is fleeing and when ghosts are)
+  // Checks game conditions 1.Eaten every biscuit and seed 2.All lives lost 3.Pacman eaten whilst ghost are chasing 4.Pacman eats ghost
   function gameConditions() {
-    const checkGameInterval = setInterval(() => {
-      if ([blinky.position, pinky.position, clyde.position, inky.position].includes(pacman.position) && pacman.flee) {
+    checkGameInterval = setInterval(() => {
+      
+      if (cells.every(cell => !cell.classList.contains('seed') && !cell.classList.contains('biscuit'))) {
+
+        clearAllIntervals()
+
+      } else if ([blinky.position, pinky.position, clyde.position, inky.position].includes(pacman.position) && pacman.flee) {
+
         pacman.lives--
         removeLife()
         // clear all intervals 
         clearInterval(pacmanInterval)
         // reset ghost positions
         resetGhost(pinky, 169, 'pinky', pinkyInterval), resetGhost(blinky, 115, 'blinky', blinkyInterval), resetGhost(inky, 118, 'wrinkly', inkyInterval), resetGhost(clyde, 172, 'clyde', clydeInterval)
+        
       } else if ([blinky.position, pinky.position, clyde.position, inky.position].includes(pacman.position) && !pacman.flee) {
+
         pacman.score += 10
         addScore()
         blinky.position === pacman.position ? resetGhost(blinky, 115, 'blinky', blinkyInterval) :
           pinky.position === pacman.position ? resetGhost(pinky, 169, 'pinky', pinkyInterval) :
             inky.position === pacman.position ? resetGhost(inky, 118, 'wrinkly', inkyInterval) :
-              clyde.position === pacman.position ? resetGhost(clyde, 172, 'clyde', clydeInterval) : null
+              clyde.position === pacman.position ? resetGhost(clyde, 172, 'clyde', clydeInterval) : 
+                null
+
       }
 
     }, 10)
@@ -101,7 +111,7 @@ function main() {
       cells[pinky.position].classList.remove('flee')
       cells[inky.position].classList.remove('flee')
       cells[clyde.position].classList.remove('flee')
-    }, 7000)
+    }, 5000)
   }
 
   // Checks pacman classes nearby based on direction
@@ -241,6 +251,15 @@ function main() {
 
   function removeLife() {
     lives.innerHTML = `Lives: ${pacman.lives}`
+  }
+
+  function clearAllIntervals() {
+    clearInterval(pacmanInterval)
+    clearInterval(blinkyInterval)
+    clearInterval(pinkyInterval)
+    clearInterval(inkyInterval)
+    clearInterval(clydeInterval)
+    clearInterval(checkGameInterval)
   }
 
 }
