@@ -17,7 +17,7 @@ const pacman = {
 
 const blinky = {
   position: 115,
-  speed: 40,
+  speed: 400,
   asString: 'blinky',
 }
 
