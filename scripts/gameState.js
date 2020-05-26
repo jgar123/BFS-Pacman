@@ -8,7 +8,7 @@ const gridSize = 18
 
 const pacman = {
   position: 296,
-  speed: 100,
+  speed: 200,
   flee: true,
   lives: 3,
   score: 0,
@@ -17,7 +17,7 @@ const pacman = {
 
 const blinky = {
   position: 115,
-  speed: 30,
+  speed: 400,
 }
 
 const pinky = {
