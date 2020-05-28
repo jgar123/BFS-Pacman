@@ -16,7 +16,7 @@ class Vector {
 // Converts current game state (stored in cells) from an array into an array of arrays. Once split, it then recreates the board with vectors putting the new vector grid, ghost and pacman into an object which is fed into BFS algorithm
 function cellsToVectors(gameGridState, gridSize, ghostAsString, flee) {
 
-  // split gameState into array or array (cells)
+  // split gameState into array of array (cells)
   const updatedState = []
   for (let i = 0; i < gameGridState.length; i += gridSize) {
     updatedState.push(gameGridState.slice(i, i + gridSize))
